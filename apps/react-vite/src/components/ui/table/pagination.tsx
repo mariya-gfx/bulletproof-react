@@ -161,7 +161,11 @@ export const TablePagination = ({
           </PaginationItem>
         )}
         <PaginationItem className="rounded-sm bg-gray-200">
-          <PaginationLink href={createHref(currentPage)}>
+          <PaginationLink
+            href={createHref(currentPage)}
+            isActive
+            className="border-0 bg-transparent shadow-none"
+          >
             {currentPage}
           </PaginationLink>
         </PaginationItem>
@@ -179,7 +183,7 @@ export const TablePagination = ({
         )}
         {currentPage < totalPages && (
           <PaginationItem>
-            <PaginationNext href={createHref(totalPages)} />
+            <PaginationNext href={createHref(currentPage + 1)} />
           </PaginationItem>
         )}
       </PaginationContent>
