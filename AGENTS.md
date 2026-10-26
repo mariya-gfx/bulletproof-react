@@ -232,6 +232,14 @@ export const useDiscussions = (params: GetDiscussionsParams) => {
 
 ## Development Workflow
 
+### Git Workflow & Branch Management
+
+- Verify the current branch and working-tree state before any code implementation.
+- Use a dedicated feature or bug-fix branch; reuse the current branch only if it is appropriate for the task. If a new branch or a switch is needed, obtain approval before proceeding with implementation.
+- Never create or switch branches, commit, push, open PRs, or merge without explicit user approval for those actions. Permission to implement alone does not authorize them.
+- Follow: Branch → Implementation → Verification → Code Review → Commit/PR. The final step remains subject to explicit user approval and the existing verification requirements below.
+- Keep changes focused on the task and avoid unrelated files.
+
 ### Git Hooks (Husky)
 - **Pre-commit**: ESLint, Prettier, TypeScript check
 - **Pre-push**: Run test suite
