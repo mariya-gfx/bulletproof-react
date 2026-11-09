@@ -11,6 +11,7 @@ import { formatDate } from '@/utils/format';
 import { useInfiniteComments } from '../api/get-comments';
 
 import { DeleteComment } from './delete-comment';
+import { UpdateComment } from './update-comment';
 
 type CommentsListProps = {
   discussionId: string;
@@ -51,14 +52,14 @@ export const CommentsList = ({ discussionId }: CommentsListProps) => {
             key={comment.id || index}
             className="w-full bg-white p-4 shadow-sm"
           >
-            <Authorization
-              policyCheck={POLICIES['comment:delete'](
-                user.data as User,
-                comment,
-              )}
-            >
-              <div className="flex justify-between">
-                <div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <Authorization
+                policyCheck={POLICIES['comment:delete'](
+                  user.data as User,
+                  comment,
+                )}
+              >
+                <div className="min-w-0 break-words">
                   <span className="text-xs font-semibold">
                     {formatDate(comment.createdAt)}
                   </span>
@@ -69,10 +70,26 @@ export const CommentsList = ({ discussionId }: CommentsListProps) => {
                     </span>
                   )}
                 </div>
-                <DeleteComment discussionId={discussionId} id={comment.id} />
+              </Authorization>
+              <div className="flex max-w-full flex-wrap justify-end gap-2 self-end sm:shrink-0 sm:self-auto">
+                <Authorization
+                  policyCheck={POLICIES['comment:update'](
+                    user.data as User,
+                    comment,
+                  )}
+                >
+                  <UpdateComment comment={comment} />
+                </Authorization>
+                <Authorization
+                  policyCheck={POLICIES['comment:delete'](
+                    user.data as User,
+                    comment,
+                  )}
+                >
+                  <DeleteComment discussionId={discussionId} id={comment.id} />
+                </Authorization>
               </div>
-            </Authorization>
-
+            </div>
             <MDPreview value={comment.body} />
           </li>
         ))}
