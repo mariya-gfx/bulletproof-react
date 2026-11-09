@@ -12,6 +12,8 @@ export enum ROLES {
 type RoleTypes = keyof typeof ROLES;
 
 export const POLICIES = {
+  'comment:update': (user: User, comment: Comment) =>
+    comment.author?.id === user.id,
   'comment:delete': (user: User, comment: Comment) => {
     if (user.role === 'ADMIN') {
       return true;

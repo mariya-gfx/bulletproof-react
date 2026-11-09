@@ -1,4 +1,5 @@
 import { HttpResponse, http } from 'msw';
+import { z } from 'zod';
 
 import { env } from '@/config/env';
 
@@ -9,6 +10,10 @@ type CreateCommentBody = {
   body: string;
   discussionId: string;
 };
+
+const updateCommentBodySchema = z.object({
+  body: z.string().refine((body) => body.trim().length > 0, 'Required'),
+});
 
 export const commentsHandlers = [
   http.get(`${env.API_URL}/comments`, async ({ request, cookies }) => {
@@ -94,6 +99,54 @@ export const commentsHandlers = [
       );
     }
   }),
+
+  http.patch(
+    `${env.API_URL}/comments/:commentId`,
+    async ({ params, request, cookies }) => {
+      await networkDelay();
+
+      try {
+        const { user, error } = requireAuth(cookies);
+        if (error || !user) {
+          return HttpResponse.json(
+            { message: 'Unauthorized' },
+            { status: 401 },
+          );
+        }
+        const commentId = params.commentId as string;
+        const comment = db.comment.findFirst({
+          where: { id: { equals: commentId } },
+        });
+        if (!comment) {
+          return HttpResponse.json(
+            { message: 'Comment not found' },
+            { status: 404 },
+          );
+        }
+        if (comment.authorId !== user.id) {
+          return HttpResponse.json({ message: 'Forbidden' }, { status: 403 });
+        }
+        const parsed = updateCommentBodySchema.safeParse(await request.json());
+        if (!parsed.success) {
+          return HttpResponse.json(
+            { message: 'Comment body is required' },
+            { status: 400 },
+          );
+        }
+        const result = db.comment.update({
+          where: { id: { equals: commentId } },
+          data: { body: parsed.data.body },
+        });
+        await persistDb('comment');
+        return HttpResponse.json({ ...result, author: sanitizeUser(user) });
+      } catch (error: any) {
+        return HttpResponse.json(
+          { message: error?.message || 'Server Error' },
+          { status: 500 },
+        );
+      }
+    },
+  ),
 
   http.delete(
     `${env.API_URL}/comments/:commentId`,

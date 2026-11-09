@@ -55,7 +55,7 @@ export const FormDrawer = ({
           </DrawerHeader>
           <div>{children}</div>
         </div>
-        <DrawerFooter>
+        <DrawerFooter role="group" aria-label="Form actions">
           <DrawerClose asChild>
             <Button variant="outline" type="submit">
               Close
